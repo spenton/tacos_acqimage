@@ -355,5 +355,5 @@ pro acqimage_centering_vs_sn_4way,aperture=aperture,mirror=mirror,buffer=buffer,
 
 	pbY.save,pngdir+'LowSN_ALL_centering_XD9.png'
 
-	if dedug then stop
+	if debug then stop
 end
