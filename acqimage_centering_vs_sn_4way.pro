@@ -1,5 +1,6 @@
-pro acqimage_centering_vs_sn_4way,aperture=aperture,mirror=mirror,buffer=buffer,redo=redo,debug=debug
-	if n_elements(debug) ne 1 then debug=1
+pro acqimage_centering_vs_sn_4way,aperture=aperture,mirror=mirror,buffer=buffer,redo=redo,debug=debug,verbose=verbose
+	if n_elements(debug) ne 1 then debug=0
+	if n_elements(verbose) ne 1 then verbose=0
 	if n_elements(redo) ne 1 then redo=1
 	if n_elements(buffer) ne 1 then buffer=1
 	if n_elements(aperture) ne 1 then aperture='BOA'

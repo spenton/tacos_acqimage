@@ -1,16 +1,16 @@
-pro cos_target_locate_checkbox,image,boxsize,Xcen,Ycen,extracted_max_box,maxcounts=maxcounts,forget_edges=forget_edges,user=user
+pro cos_target_locate_checkbox,the_image,boxsize,Xcen,Ycen,extracted_max_box,maxcounts=maxcounts,forget_edges=forget_edges,user=user,debug=debug,verbose=verbose
 ;+
 ;	cos_target_locate_checkbox
 ;
 ;	This is based on D. Linders target_locate_checkbox from the CALSTIS IDL version
 ;
-;	Simulate an ACQ/IMAGE by finding the checkbox in image with maximum flux (subroutine of cos_target_locate.pro)
+;	Simulate an ACQ/IMAGE by finding the checkbox in the_image with maximum flux (subroutine of cos_target_locate.pro)
 ;
 ; CALLING SEQUENCE:
-;	cos_target_locate_checkbox,image,boxsize,Xcen,Ycen,box
+;	cos_target_locate_checkbox,the_image,boxsize,Xcen,Ycen,box
 ;
 ; INPUTS:
-;	image - input image on cos plate scale, normally this is a 145x145 COS image
+;	the_image - input image on cos plate scale, normally this is a 145x145 COS image
 ;	        simulating the "small" box in LTAIMAGE, it is ok if it is bigger.
 ;	boxsize - checkbox size (this should be set to 9 for COS)
 ;	forget_edges - set this keyword to not consider the counts at the edge of the image
@@ -35,10 +35,14 @@ pro cos_target_locate_checkbox,image,boxsize,Xcen,Ycen,extracted_max_box,maxcoun
 ;	            Added the "USER" keyword and comments about the COS FSW.
 ;	            Added comments about which maximum checkbox is chosen in a tie.
 ;	            Added the /nan to the smooth call.
+;	version 1.3	S. Penton, Dec 6, 2017
+;               Added debug and verbose keywords
 ;-
 ;-----------------------------------------------------------------------------
 ;
-if n_elements(forget_edges) ne 1 then forget_edges=0 ; set the COS default
+if n_elements(forget_edges) ne 1 then forget_edges=1 ; set the COS default
+if n_elements(debug) ne 1 then debug=0
+if n_elements(verbose) ne 1 then verbose=0
 if n_elements(user) ne 1 then user=0 ; Assume COS detector coordinates (NOT USER)
 ; Be careful as ACQ/IMAGEs return images in USER coordinates by default, but the
 ; COS FSW operates in detector coordinates. The transformation is simple:
@@ -47,21 +51,26 @@ if n_elements(user) ne 1 then user=0 ; Assume COS detector coordinates (NOT USER
 ;
 ; Get image size and 1/2 boxsize (hbox)
 ;
-	s = size(image)
+	s = size(the_image)
 	ns = s[1]
 	nl = s[2]
-	hbox = boxsize/2
+	hbox = boxsize/2 ; this works odd or even
 ;
 ; find total within each checkbox
 ;
-	tots = smooth(float(image),boxsize,/nan) ; V1.2, added the /NAN
+	tots = smooth(float(the_image),boxsize,/nan) ; V1.2, added the /NAN
 ;
 ; Note that the for the IDL smooth function.
 ; If none of the EDGE_* keywords are set, the end points are copied from the original array to the result with no smoothing.
 ;
-; don't consider the edges (this step is NOT done for the COS FSW), but sometimes it helps
+; don't consider the edges, the smoothing makes them larger than they should be
 ;
-	if forget_edges then tots[0:hbox,*]=(tots[*,0:hbox]=(tots[ns-hbox:ns-1,*] = (tots[*,nl-hbox:nl-1] = 0)))
+	if forget_edges then begin
+			tots[0:hbox,*]=0
+			tots[*,0:hbox]=0
+			tots[ns-hbox:ns-1,*] = 0
+			tots[*,nl-hbox:nl-1] = 0
+	endif
 ;
 ; find position of maximum
 ;
@@ -82,7 +91,10 @@ if n_elements(user) ne 1 then user=0 ; Assume COS detector coordinates (NOT USER
 ;
 ; extract best checkbox
 ;
-	extracted_max_box = image[Xcen-hbox:Xcen+hbox < (ns-1),Ycen-hbox:Ycen+hbox < (nl-1)]
+	if debug then begin
+		help,the_image,Xcen,hbox,ns,Ycen,nl
+	endif
+	extracted_max_box = the_image[Xcen-hbox:Xcen+hbox < (ns-1),Ycen-hbox:Ycen+hbox < (nl-1)]
 
 	maxcounts=maxt
 end

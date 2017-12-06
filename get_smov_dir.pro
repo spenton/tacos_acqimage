@@ -48,7 +48,7 @@ function get_smov_dir,verbose=verbose,analysis=analysis,$
 					dir=basedir+'Data/'
 					if pid ne -1 then dir+=string1i(pid)+'/'
 					if gzip then dir+="gzip/"
-					if central_storage then
+					if central_storage then begin
 						message,/info,'Watch out '+dir+' uses otfrdata dirs instead of gzip.'
 					endif
 				end
