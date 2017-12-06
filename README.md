@@ -1,7 +1,7 @@
 # tacos_acqimage
 IDL programs to evaluate COS ACQ/IMAGE
 
-If everything is running correctly, it should look like this
+If everything is running correctly, it should look like this (go to "RAW" mode)
 
 IDL Version 8.5.1, Mac OS X (darwin x86_64 m64).
 (c) 2015, Exelis Visual Information Solutions, Inc., a subsidiary of Harris Corporation.
